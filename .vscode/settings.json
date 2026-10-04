@@ -1,0 +1,3 @@
+{"python.testing.unittestEnabled": true, "python.testing.pytestEnabled": false,
+ "python.testing.unittestArgs": ["-v", "-s", "./backend/tests", "-t", "./backend"],
+ "files.exclude": {"**/__pycache__": true, "**/.venv": true}}

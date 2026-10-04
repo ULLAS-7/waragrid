@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WaraGrid</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shell.css">
+</head>
+<body>
+
+  <!-- Hero band: scenery image + wordmark + tagline -->
+  <div class="hero-band" role="banner">
+    <!-- AI-generated decorative artwork; aria-hidden so screen readers skip it -->
+    <img src="assets/scenery.jpg" alt="" aria-hidden="true">
+    <div class="hero-scrim">
+      <h1 class="hero-wordmark">Wara<b>Grid</b></h1>
+      <p>Every farm gets its turn. Every kWh gets counted.</p>
+      <p style="font-size:11px;opacity:.8">Team OUT OF BOUNDS · Yuva Yodha Energy Tech Hackathon 2026 · Artwork is AI-generated</p>
+    </div>
+  </div>
+
+  <header>
+    <h1>Wara<b>Grid</b></h1>
+    <nav aria-label="Views">
+      <a href="#/overview" data-view="overview">Overview</a><a href="#/farmers" data-view="farmers">Farmers</a>
+      <a href="#/verify" data-view="verify">Verify</a><a href="#/about" data-view="about">Assumptions</a>
+      <a href="#/demo" data-view="demo" style="background:#F2A100;color:#1A2E25;font-weight:700">▶ Demo</a>
+    </nav>
+    <div class="tools">
+      <span id="presets" class="row" aria-label="Scenario presets"></span>
+      <a id="csv" class="chip" href="/api/export.csv" download>CSV</a><button id="print" class="chip">Print brief</button>
+    </div>
+  </header>
+
+  <div class="shell">
+    <!-- Scenario controls: ids match the /api parameters; js/state.js owns the values -->
+    <aside class="side"><details open><summary>Scenario</summary>
+      <section class="ctl" aria-label="Scenario">
+        <label>Pumps on the feeder <output id="o_n"></output><input id="n" type="range" min="60" max="600" step="20" value="300"></label>
+        <label>Farmers who follow their turn <output id="o_q"></output><input id="q" type="range" min="40" max="100" step="5" value="80" data-u="%"></label>
+        <label>Feeder cap, times average load <output id="o_capf"></output><input id="capf" type="range" min="1.1" max="1.8" step="0.05" value="1.25" data-u="×"></label>
+        <label>Pumps on one transformer <output id="o_dt"></output><input id="dt" type="range" min="6" max="40" step="2" value="12"></label>
+        <label>Energy saved <output id="o_save"></output><input id="save" type="range" min="4" max="20" step="1" value="12" data-u="%"></label>
+        <label>Pumping head <output id="o_head"></output><input id="head" type="range" min="10" max="80" step="5" value="30" data-u=" m"></label>
+        <label>Pump efficiency <output id="o_eff"></output><input id="eff" type="range" min="20" max="45" step="1" value="28" data-u="%"></label>
+        <label>Weather <select id="weather"></select></label>
+        <label><span><input id="solar" type="checkbox"> Shape turns toward solar hours</span></label>
+        <div class="row"><button id="play">Play the morning</button><button id="again" class="alt">New day</button></div>
+      </section></details></aside>
+
+    <main>
+      <!-- Slides 4 and 8: the DISCOM console, today vs WaraGrid, with intervals and impact -->
+      <div class="view" id="view-overview">
+        <div class="hero" id="hero" aria-live="polite"></div>
+        <small class="note" id="mc"></small>
+        <section class="duo">
+          <div class="card"><h2 class="bad">Today: everyone switches on at once</h2><small id="c1"></small>
+            <canvas id="cv1" aria-label="Feeder load without WaraGrid"></canvas><div class="k" id="k1"></div></div>
+          <div class="card"><h2 class="good">WaraGrid: every farm gets a turn</h2><small id="c2"></small>
+            <canvas id="cv2" aria-label="Feeder load with WaraGrid"></canvas><div class="k" id="k2"></div></div>
+        </section>
+        <div class="card"><h2>Impact of one feeder</h2><div id="imp"></div></div>
+      </div>
+
+      <!-- Slide 5: the farmer's call, turn swaps and the village committee's fairness view -->
+      <div class="view" id="view-farmers"><section class="duo">
+        <div class="card"><h2>The farmer's 6:00 AM call</h2>
+          <div class="row"><select id="farmer" aria-label="Farmer"></select><select id="lang" aria-label="Language"></select></div>
+          <div id="msg"></div><button id="speak">Hear it</button> <small id="calls"></small></div>
+        <div class="card"><h2>Press 2 to swap</h2><small>Two farmers exchange turns only if the feeder stays under its cap.</small>
+          <div class="row"><select id="swapA" aria-label="First farmer"></select><select id="swapB" aria-label="Second farmer"></select><button id="swapBtn">Try the swap</button></div>
+          <p id="swapOut" aria-live="polite"></p></div>
+        <div class="card"><h2>Village committee: when farmers get their turn</h2><small id="fair"></small>
+          <canvas id="cv4" aria-label="Farmers by start time band"></canvas></div>
+      </section></div>
+
+      <!-- Slides 3 and 8: verification -->
+      <div class="view" id="view-verify"><section class="duo">
+        <div class="card"><h2>Pooled metering (stretch)</h2><small id="dec"></small>
+          <canvas id="cv3" aria-label="Decoded versus true pump load"></canvas></div>
+        <div class="card"><h2>Stepped rollout with a control feeder</h2>
+          <label>Post-period heat shift <output id="o_heat"></output><input id="heat" type="range" min="0" max="20" step="1" value="8" data-u="%"></label>
+          <small id="did"></small><canvas id="cv5" aria-label="Saving estimates"></canvas></div>
+        <div class="card"><h2>What moves the answer</h2>
+          <select id="metric" aria-label="Impact metric"><option value="water_m3">Groundwater saved</option><option value="saved_mwh">Energy saved</option><option value="co2_t">CO₂ avoided</option><option value="payout_rs">Community payout</option></select>
+          <canvas id="cv6" aria-label="Sensitivity tornado"></canvas></div>
+      </section></div>
+
+      <div class="view" id="view-about"><div class="card"><h2>Assumption register</h2>
+        <small>Every number here is a simulation input or a stated assumption, not a field result.</small><div id="assume"></div></div></div>
+
+      <!-- ▶ DEMO: auto-play walkthrough for judges -->
+      <div class="view" id="view-demo">
+        <div class="card" style="text-align:center;padding:28px 20px">
+          <h2 style="font-size:22px;margin-bottom:6px">🎬 One-Click Demo Walkthrough</h2>
+          <p style="color:var(--mute);margin:0 0 18px">Press <b>Start Demo</b> — the tool walks through every feature automatically with narration cards.</p>
+          <button id="demoStart" style="font-size:16px;padding:12px 32px">▶ Start Demo</button>
+          <button id="demoStop" class="alt" style="margin-left:10px;display:none">■ Stop</button>
+        </div>
+        <div id="demoStage" class="card" style="display:none;min-height:180px">
+          <div id="demoProgress" style="height:4px;background:var(--chart-grid);border-radius:4px;margin-bottom:16px">
+            <div id="demoBar" style="height:4px;background:var(--teal);border-radius:4px;width:0%;transition:width .4s"></div>
+          </div>
+          <h2 id="demoTitle" style="font-size:18px;margin-bottom:8px"></h2>
+          <p id="demoDesc" style="color:var(--mute);font-size:14px;line-height:1.6"></p>
+          <div id="demoAction" style="margin-top:14px;font-size:13px;color:var(--teal);font-weight:600"></div>
+          <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end">
+            <button id="demoPrev" class="alt" style="font-size:13px;padding:7px 18px">← Prev</button>
+            <button id="demoNext" style="font-size:13px;padding:7px 18px">Next →</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>What the Demo shows</h2>
+          <table><thead><tr><th>#</th><th>Feature</th><th>What to look for</th></tr></thead><tbody>
+            <tr><td>1</td><td>Morning simulation</td><td>Feeder load collapses from a spike to a flat curve</td></tr>
+            <tr><td>2</td><td>KPI comparison</td><td>Peak load, simultaneous starts and ramp all drop</td></tr>
+            <tr><td>3</td><td>Scenario presets</td><td>Heatwave raises demand; Low compliance shows the spike return</td></tr>
+            <tr><td>4</td><td>Farmer IVR call</td><td>Switch language to Hindi/Punjabi; press "Hear it"</td></tr>
+            <tr><td>5</td><td>Turn swap</td><td>F001 and F002 swap — feeder cap check runs instantly</td></tr>
+            <tr><td>6</td><td>Verify tab</td><td>Control-feeder DiD recovers the planted saving; tornado shows sensitivity</td></tr>
+            <tr><td>7</td><td>Assumptions tab</td><td>Every number is traceable to a source file</td></tr>
+            <tr><td>8</td><td>CSV export</td><td>Downloads the feeder curves for the current scenario</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <p class="note">Synthetic model. Results are simulation outputs and illustrative assumptions, to be confirmed in a pilot. Team OUT OF BOUNDS · Yuva Yodha Energy Tech Hackathon 2026 · Challenge 1<br>
+      <small>Scenery artwork is AI-generated and used as a decorative frame only. All charts, numbers and code are original work by the team.</small></p>
+    </main>
+  </div>
+  <div id="tip" class="tip" role="tooltip"></div><div id="toast" class="toast" role="status"></div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

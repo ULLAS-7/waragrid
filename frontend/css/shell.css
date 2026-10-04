@@ -1,0 +1,158 @@
+/* App shell: sticky header, navigation, sidebar layout, views, feedback states, print. Loaded after app.css. */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:10px 28px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 22px;
+  align-items:center;
+  box-shadow:0 1px 8px rgba(14,77,58,0.07);
+}
+header h1{font-size:24px;color:var(--green)}
+header h1 b{color:var(--teal)}
+
+nav{display:flex;flex-wrap:wrap;gap:4px}
+nav a{
+  color:var(--mute);
+  text-decoration:none;
+  padding:6px 14px;
+  border-radius:999px;
+  font-weight:600;
+  font-size:14px;
+  transition:color .15s,background .15s;
+}
+nav a:hover{color:var(--green)}
+nav a[aria-current=page]{
+  background:var(--green);
+  color:#fff;
+}
+
+.tools{
+  margin-left:auto;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+.chip{
+  display:inline-block;
+  background:transparent;
+  color:var(--green);
+  border:1px solid rgba(14,77,58,0.25);
+  padding:5px 12px;
+  font-size:13px;
+  border-radius:999px;
+  text-decoration:none;
+  cursor:pointer;
+  font-weight:600;
+  font-family:Inter,"Segoe UI",system-ui,sans-serif;
+  transition:border-color .15s,background .15s;
+}
+.chip:hover{border-color:var(--teal);background:rgba(10,158,143,0.07)}
+
+/* ── Shell grid ─────────────────────────────────────────────────────────── */
+.shell{
+  display:grid;
+  grid-template-columns:270px 1fr;
+  gap:16px;
+  padding:16px 28px 36px;
+  align-items:start;
+}
+.side{position:sticky;top:70px}
+.side summary{
+  cursor:pointer;
+  font:600 15px Poppins,"Segoe UI",system-ui,sans-serif;
+  color:var(--green);
+  margin-bottom:8px;
+}
+.side .ctl{grid-template-columns:1fr}
+main{padding:0;display:block}
+
+/* ── Views ──────────────────────────────────────────────────────────────── */
+.view{display:none;gap:16px}
+.view.active{display:grid}
+
+/* ── Hero KPI strip ─────────────────────────────────────────────────────── */
+.hero b{font-size:26px}
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--mute);font-weight:600}
+td{color:var(--ink)}
+
+/* ── Tooltip ────────────────────────────────────────────────────────────── */
+.tip{
+  position:fixed;
+  display:none;
+  pointer-events:none;
+  background:#fff;
+  border:1px solid var(--line);
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:12px;
+  color:var(--ink);
+  box-shadow:var(--shadow);
+  z-index:9;
+}
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+.toast{
+  position:fixed;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  display:none;
+  background:#C0282C;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:10px;
+  z-index:9;
+  font-weight:600;
+}
+.toast.show{display:block}
+
+/* ── Loading bar ────────────────────────────────────────────────────────── */
+body.busy::before{
+  content:"";
+  position:fixed;
+  top:0;left:0;
+  height:3px;
+  width:100%;
+  background:linear-gradient(90deg,var(--teal),var(--amber));
+  animation:slide 1s linear infinite;
+  z-index:10;
+}
+body.busy .card{opacity:.7;transition:opacity .2s}
+@keyframes slide{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr;padding:12px}
+  .side{position:static}
+  header{padding:10px 14px}
+  .tools{margin-left:0}
+}
+@media(max-width:360px){
+  header h1{font-size:19px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+@media print{
+  header nav,.tools,.side,.toast,.tip,.hero-band{display:none}
+  .shell{display:block;padding:0}
+  .view{display:grid!important}
+  body{background:#fff;color:#000}
+  body::after{display:none}
+  .card{border:1px solid #aaa;break-inside:avoid;box-shadow:none;backdrop-filter:none}
+}

@@ -1,0 +1,2 @@
+{"version": "0.2.0", "configurations": [
+  {"name": "WaraGrid server", "type": "debugpy", "request": "launch", "program": "${workspaceFolder}/backend/run.py", "cwd": "${workspaceFolder}", "console": "integratedTerminal"}]}

@@ -1,0 +1,31 @@
+/* Brand tokens – light farmland theme matching the pitch deck.
+   AI-generated artwork (scenery.jpg) is used as a decorative background only.
+   All chart colours, numbers and simulation logic are unchanged from v0.3. */
+:root {
+  /* Page & surface */
+  --bg: #EAF6EF;
+  --card: rgba(255,255,255,0.92);
+  --line: rgba(14,77,58,0.12);
+
+  /* Chart palette (same semantic meaning, readable on white) */
+  --teal:   #0A9E8F;   /* WaraGrid load fill & lines */
+  --coral:  #E5484D;   /* Today/problem */
+  --amber:  #F2A100;   /* Feeder cap dashed line, focus ring */
+  --blue:   #2E6CB5;   /* Water accent (kept for future use) */
+  --green:  #0E4D3A;   /* Brand dark-green (headings, buttons) */
+
+  /* Chart gridlines and axes */
+  --chart-grid: #D6E6DC;
+  --chart-axis: #3E5B52;
+
+  /* Typography */
+  --ink:  #1A2E25;     /* Body text */
+  --mute: #4E6B5E;     /* Labels, captions */
+
+  /* Scenery */
+  --scenery: url('../assets/scenery.jpg');
+  --scenery-fallback: linear-gradient(160deg, #C8EDD6 0%, #FFFFFF 100%);
+
+  /* Shadows */
+  --shadow: 0 2px 16px rgba(14,77,58,0.10);
+}
